@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">OmniTrace</string>
+    <string name="test">OmniTrace</string>
 </resources>
