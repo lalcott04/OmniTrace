@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,7 +14,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button settingsBtn;
+    ImageButton settingsBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        settingsBtn = (Button) findViewById(R.id.settingsBtn);
+        settingsBtn = (ImageButton) findViewById(R.id.settingsBtn);
         settingsBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
