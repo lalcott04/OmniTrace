@@ -9,12 +9,13 @@
     tools:context=".MainActivity">
 
     <TextView
-        android:id="@+id/textView"
-        android:layout_width="187dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="222dp"
-        android:text="@string/status"
+        android:id="@+id/statusText"
+        android:layout_width="211dp"
+        android:layout_height="98dp"
+        android:layout_marginTop="200dp"
+        android:text="No anomalies detected"
         android:textAlignment="center"
+        android:textColor="#FFFFFF"
         android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -22,14 +23,34 @@
 
     <ImageButton
         android:id="@+id/settingsBtn"
-        android:layout_width="52dp"
+        android:layout_width="0dp"
         android:layout_height="52dp"
         android:layout_marginTop="27dp"
-        android:layout_marginEnd="27dp"
-        android:background="#3E3F49"
+        android:layout_marginEnd="26dp"
+        android:background="@drawable/navigation_button_shape"
         android:contentDescription="@string/settings"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/titleText"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/cog_icon" />
+
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="26dp"
+        android:layout_marginTop="44dp"
+        android:layout_marginEnd="220dp"
+        android:contentDescription="@string/omnitrace"
+        android:fontFamily="monospace"
+        android:text="@string/omnitrace"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/settingsBtn"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
