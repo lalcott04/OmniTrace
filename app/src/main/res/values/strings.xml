@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">OmniTrace</string>
     <string name="settings">Settings</string>
-    <string name="status">Status</string>
     <string name="back">Back</string>
+    <string name="warning">Warning</string>
+    <string name="view_security_warnings">View Security Warnings</string>
     <string name="omnitrace">OmniTrace</string>
 </resources>

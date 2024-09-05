@@ -14,8 +14,8 @@
         android:layout_marginTop="16dp"
         android:background="@drawable/navigation_button_shape"
         android:contentDescription="@string/back"
+        android:src="@drawable/back_arrow_icon"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:src="@drawable/back_arrow_icon"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
