@@ -44,16 +44,23 @@ public class MainActivity extends AppCompatActivity {
 
         // Collect all unique permissions
         Set<String> permissionSet = new HashSet<>();
+        // Iterate permissionSets
         for (ResolveInfo info : appsList) {
+            //Get Package Name
             String packageName = info.activityInfo.packageName;
             try {
+                // Get Packageinfo based off PackageName
                 PackageInfo packageInfo = pm.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS);
+                // Store permissions in string array
                 String[] requestedPermissions = packageInfo.requestedPermissions;
+                // If exists
                 if (requestedPermissions != null) {
+                    // For each permission, add to permission hashset
                     for (String permission : requestedPermissions) {
                         permissionSet.add(permission);
                     }
                 }
+                //catch error
             } catch (PackageManager.NameNotFoundException e) {
                 e.printStackTrace();
             }
@@ -64,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
         java.util.Arrays.sort(permissionsArray);
 
         // Define the internal storage file path
+        // saves the file to Device Explorer data/data/com.example.omnitrace/files
+        // to open the Device Explorer -> View -> Tool Windows -> Device Explorer
         File csvFile = new File(getFilesDir(), "app_permissions.csv");
         FileWriter writer = null;
 
