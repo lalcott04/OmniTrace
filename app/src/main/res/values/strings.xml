@@ -4,5 +4,7 @@
     <string name="back">Back</string>
     <string name="warning">Warning</string>
     <string name="view_security_warnings">View Security Warnings</string>
+    <string name="no_security_warnings">No Security Warnings</string>
+    <string name="test">TestTestTestTestTest</string>
     <string name="omnitrace">OmniTrace</string>
 </resources>

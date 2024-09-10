@@ -12,7 +12,7 @@
         android:id="@+id/warningBtn"
         android:layout_width="200dp"
         android:layout_height="200dp"
-        android:layout_marginStart="112dp"
+        android:layout_marginStart="99dp"
         android:layout_marginTop="191dp"
         android:layout_marginEnd="99dp"
         android:background="#5A5C6A"
@@ -23,18 +23,18 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/viewSecWarnText"
+        android:id="@+id/warningText"
         android:layout_width="240dp"
         android:layout_height="30dp"
         android:layout_marginStart="92dp"
         android:layout_marginTop="9dp"
-        android:layout_marginEnd="79dp"
+        android:layout_marginEnd="92dp"
+        android:contentDescription="@string/view_security_warnings"
         android:text="@string/view_security_warnings"
         android:textAlignment="center"
         android:textColor="#FFFFFF"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:contentDescription="@string/view_security_warnings"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/warningBtn" />
@@ -66,6 +66,16 @@
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/iconTestBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="64dp"
+        android:layout_marginBottom="80dp"
+        android:text="Button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
