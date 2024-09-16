@@ -1,7 +1,6 @@
 package com.example.omnitrace;
 
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -31,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        settingsBtn = (ImageButton) findViewById(R.id.settingsBtn);
+        settingsBtn = findViewById(R.id.settingsBtn);
         settingsBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
@@ -40,19 +39,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        warningBtn = (ImageButton) findViewById(R.id.warningBtn);
+        warningBtn = findViewById(R.id.warningBtn);
         warningBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
                 Intent intent = new Intent(MainActivity.this, WarningActivity.class);
-                if (Objects.equals(warningBtn.getDrawable().getConstantState(), ResourcesCompat.getDrawable(getResources(), R.drawable.warning_icon, null).getConstantState())){
+                if (Objects.equals(warningBtn.getDrawable().getConstantState(), ResourcesCompat.getDrawable(getResources(), R.drawable.red_warning_icon, null).getConstantState())){
                     startActivity(intent);
                 }
             }
         });
 
-        iconTestBtn = (Button) findViewById(R.id.iconTestBtn);
-        warningText = (TextView) findViewById(R.id.warningText);
+        iconTestBtn = findViewById(R.id.iconTestBtn);
+        warningText = findViewById(R.id.warningText);
         iconTestBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
@@ -64,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else
                 {
-                    warningBtn.setImageResource(R.drawable.warning_icon);
+                    warningBtn.setImageResource(R.drawable.red_warning_icon);
                     warningText.setText("View Security Warnings");
                     iconCount = 0;
                 }

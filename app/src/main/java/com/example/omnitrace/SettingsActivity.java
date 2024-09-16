@@ -14,7 +14,7 @@ public class SettingsActivity extends Activity {
     protected void onCreate (Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-        backBtn = (ImageButton) findViewById(R.id.backBtn);
+        backBtn = findViewById(R.id.backBtn);
         backBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){

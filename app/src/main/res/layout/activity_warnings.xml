@@ -23,6 +23,7 @@
         android:layout_width="379dp"
         android:layout_height="625dp"
         android:layout_margin="16dp"
+        android:background="#4B4D59"
         android:scrollbars="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
