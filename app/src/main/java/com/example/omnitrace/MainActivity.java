@@ -7,10 +7,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.room.Room;
+
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+
+import com.example.omnitrace.database.AppDao;
+import com.example.omnitrace.database.AppDatabase;
+import com.example.omnitrace.database.models.App;
+import com.example.omnitrace.database.models.Permission;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -20,6 +28,7 @@ import java.util.Set;
 
 
 public class MainActivity extends AppCompatActivity {
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +75,50 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+
+        // Export to CSV
+        extractToCSV(permissionSet, appsList, pm);
+
+
+
+        AppDatabase db = Room.databaseBuilder(getApplicationContext(),
+                AppDatabase.class, "permissions.db").allowMainThreadQueries().build();
+
+        AppDao dao = db.dao();
+
+        dao.deleteAllPermissions();
+        dao.deleteAllApps();
+        dao.resetIds();
+
+        for (ResolveInfo info : appsList) {
+            String packageName = info.activityInfo.packageName;
+
+
+            App app = new App(packageName);
+            long appId = dao.insertApp(app);
+
+            try {
+                PackageInfo packageInfo = pm.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS);
+                String[] requestedPermissions = packageInfo.requestedPermissions;
+
+                if (requestedPermissions != null) {
+                    for (String permissionName : requestedPermissions) {
+                        Permission permission = new Permission(appId, permissionName, true);
+                        dao.insertPermission(permission);
+                    }
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+        db.close();
+    }
+
+
+    // Function that controls exporting to CSV
+    private void extractToCSV(Set<String> permissionSet, List<ResolveInfo> appsList, PackageManager pm) {
         // Convert set to array and sort it for consistent order in the CSV
         String[] permissionsArray = permissionSet.toArray(new String[0]);
         java.util.Arrays.sort(permissionsArray);
