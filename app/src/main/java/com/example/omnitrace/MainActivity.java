@@ -80,7 +80,8 @@ public class MainActivity extends AppCompatActivity {
         extractToCSV(permissionSet, appsList, pm);
 
 
-
+        // to locate the database go to /data/data/com.example.omnitrace/database/permissions.db
+        // right click download, then you can sqlite3 the SQL database
         AppDatabase db = Room.databaseBuilder(getApplicationContext(),
                 AppDatabase.class, "permissions.db").allowMainThreadQueries().build();
 
