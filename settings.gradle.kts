@@ -8,17 +8,17 @@ pluginManagement {
             }
         }
         mavenCentral()
-        gradlePluginPortal()
+        maven("https://chaquo.com/gradle")
     }
 }
+
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
+        maven("https://chaquo.com/gradle")
     }
 }
 
 rootProject.name = "OmniTrace"
 include(":app")
- 
