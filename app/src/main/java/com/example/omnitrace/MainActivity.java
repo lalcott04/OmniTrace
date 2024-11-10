@@ -137,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, WarningActivity.class);
                 List<String> packageNames = readCsvAndGetPackageNames();
                 List<Integer> clusterLabels = getClusterLabels("/data/data/com.example.omnitrace/files/app_permissions.csv", 2);
+                //Sending lists to WarningActivity.java
                 intent.putExtra("PACKAGE_NAMES", (Serializable) packageNames);
                 intent.putExtra("CLUSTER_LABELS", (Serializable) clusterLabels);
                 startActivity(intent);

@@ -25,11 +25,12 @@ public class WarningActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_warnings);
 
+        //Getting lists from MainActivity.java
         Intent intent = getIntent();
         List<String> packageNames = (List<String>) intent.getSerializableExtra("PACKAGE_NAMES");
         List<Integer> clusterLabels = (List<Integer>) intent.getSerializableExtra("CLUSTER_LABELS");
 
-
+        //Back button functionality (return to main menu)
         backBtn = findViewById(R.id.backBtn);
         backBtn.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -39,6 +40,7 @@ public class WarningActivity extends Activity {
             }
         });
 
+        //Displays the warnings that appear from the cluster list
         imageList = new ArrayList<>();
         packageNames.remove(0);
         if (clusterLabels != null){
@@ -47,8 +49,6 @@ public class WarningActivity extends Activity {
                     imageList.add(new ImageItem(R.drawable.red_warning_icon, packageNames.get(i)));
                 }
             }
-        } else {
-            imageList.add(new ImageItem(R.drawable.no_warning_icon, "No warnings!"));
         }
 
         recyclerView = findViewById(R.id.recyclerView);
