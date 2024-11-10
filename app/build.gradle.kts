@@ -26,6 +26,14 @@ android {
 dependencies {
     implementation(libs.core)
     implementation(libs.appcompat)
+
+    implementation(libs.material)
+    implementation(libs.activity)
+    implementation(libs.constraintlayout)
+    implementation(libs.room.common)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.ext.junit)
+    androidTestImplementation(libs.espresso.core)
     implementation(libs.room.runtime)
     annotationProcessor(libs.room.compiler)
     implementation("com.google.android.material:material:1.12.0")

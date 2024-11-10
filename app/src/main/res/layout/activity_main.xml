@@ -5,15 +5,77 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#5A5C6A"
     tools:context=".MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <ImageButton
+        android:id="@+id/warningBtn"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginStart="99dp"
+        android:layout_marginTop="191dp"
+        android:layout_marginEnd="99dp"
+        android:background="#5A5C6A"
+        android:contentDescription="@string/warning"
+        android:src="@drawable/red_warning_icon"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/warningText"
+        android:layout_width="240dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="92dp"
+        android:layout_marginTop="9dp"
+        android:layout_marginEnd="92dp"
+        android:contentDescription="@string/view_security_warnings"
+        android:text="@string/view_security_warnings"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/warningBtn" />
+
+    <ImageButton
+        android:id="@+id/settingsBtn"
+        android:layout_width="54dp"
+        android:layout_height="52dp"
+        android:layout_marginTop="27dp"
+        android:layout_marginEnd="25dp"
+        android:background="@drawable/navigation_button_shape"
+        android:contentDescription="@string/settings"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/cog_icon" />
+
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="26dp"
+        android:layout_marginTop="44dp"
+        android:contentDescription="@string/omnitrace"
+        android:fontFamily="monospace"
+        android:text="@string/omnitrace"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/iconTestBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="64dp"
+        android:layout_marginBottom="80dp"
+        android:text="Button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
