@@ -1,6 +1,7 @@
 package com.example.omnitrace;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import android.view.View;
@@ -34,6 +35,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -114,9 +116,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //EdgeToEdge.enable(this);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
+        //Change to the settings screen when the user clicks the settings button
         settingsBtn = findViewById(R.id.settingsBtn);
         settingsBtn.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -126,36 +129,45 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //Change to the warnings screen when the user clicks the warning icon
         warningBtn = findViewById(R.id.warningBtn);
         warningBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
                 Intent intent = new Intent(MainActivity.this, WarningActivity.class);
-                if (Objects.equals(warningBtn.getDrawable().getConstantState(), ResourcesCompat.getDrawable(getResources(), R.drawable.red_warning_icon, null).getConstantState())){
-                    startActivity(intent);
-                }
+                List<String> packageNames = readCsvAndGetPackageNames();
+                List<Integer> clusterLabels = getClusterLabels("/data/data/com.example.omnitrace/files/app_permissions.csv", 2);
+                intent.putExtra("PACKAGE_NAMES", (Serializable) packageNames);
+                intent.putExtra("CLUSTER_LABELS", (Serializable) clusterLabels);
+                startActivity(intent);
             }
         });
 
-        iconTestBtn = findViewById(R.id.iconTestBtn);
+        //Change icon depending if malicious apps are detected
         warningText = findViewById(R.id.warningText);
-        iconTestBtn.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                iconTestBtn.setSelected(!iconTestBtn.isPressed());
-                if (iconTestBtn.isPressed() && iconCount == 0){
-                    warningBtn.setImageResource(R.drawable.no_warning_icon);
-                    warningText.setText("No Security Warnings");
-                    iconCount = 1;
-                }
-                else
-                {
+        List<Integer> returned = getClusterLabels("/data/data/com.example.omnitrace/files/app_permissions.csv", 2);
+        if (returned != null) {
+            // TESTING PURPOSES (Changing all items to 0 to test no warning icon functionality)
+            /*for (int i = 0; i < returned.size(); i++) {
+                returned.set(i, 0);
+            }*/
+
+            boolean foundWarning = false;
+            for (int i = 0; i < returned.size(); i++) {
+                if (returned.get(i) == 1) {
                     warningBtn.setImageResource(R.drawable.red_warning_icon);
                     warningText.setText("View Security Warnings");
-                    iconCount = 0;
+                    foundWarning = true;
                 }
             }
-        });
+            if (!foundWarning) {
+                warningBtn.setImageResource(R.drawable.no_warning_icon);
+                warningText.setText("No Security Warnings");
+            }
+        } else {
+            warningBtn.setImageResource(R.drawable.error_icon);
+            warningText.setText("Error");
+        }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());

@@ -25,6 +25,11 @@ public class WarningActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_warnings);
 
+        Intent intent = getIntent();
+        List<String> packageNames = (List<String>) intent.getSerializableExtra("PACKAGE_NAMES");
+        List<Integer> clusterLabels = (List<Integer>) intent.getSerializableExtra("CLUSTER_LABELS");
+
+
         backBtn = findViewById(R.id.backBtn);
         backBtn.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -35,16 +40,16 @@ public class WarningActivity extends Activity {
         });
 
         imageList = new ArrayList<>();
-        imageList.add(new ImageItem(R.drawable.red_warning_icon, "Image 1 description"));
-        imageList.add(new ImageItem(R.drawable.red_warning_icon, "image 2 description"));
-        imageList.add(new ImageItem(R.drawable.red_warning_icon, "image 3 description"));
-        imageList.add(new ImageItem(R.drawable.red_warning_icon, "image 4 description"));
-        imageList.add(new ImageItem(R.drawable.red_warning_icon, "image 5 description"));
-        imageList.add(new ImageItem(R.drawable.red_warning_icon, "image 6 description"));
-        imageList.add(new ImageItem(R.drawable.red_warning_icon, "image 7 description"));
-        imageList.add(new ImageItem(R.drawable.red_warning_icon, "image 8 description"));
-        imageList.add(new ImageItem(R.drawable.red_warning_icon, "image 9 description"));
-        imageList.add(new ImageItem(R.drawable.red_warning_icon, "image 10 description"));
+        packageNames.remove(0);
+        if (clusterLabels != null){
+            for (int i = 0; i < clusterLabels.size(); i++){
+                if (clusterLabels.get(i) == 1){
+                    imageList.add(new ImageItem(R.drawable.red_warning_icon, packageNames.get(i)));
+                }
+            }
+        } else {
+            imageList.add(new ImageItem(R.drawable.no_warning_icon, "No warnings!"));
+        }
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
