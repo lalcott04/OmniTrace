@@ -112,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 // Perform the polling operation here
+                getPackages();
                 pollData();
 
                 // Schedule the next execution after 1 minute (60000 milliseconds)
@@ -142,108 +143,32 @@ public class MainActivity extends AppCompatActivity {
             Log.d("ClusterLabel", "Label: " + label);
         }
     }
-}
-        /*
-        // Get PackageManager to retrieve apps
+
+    public void getPackages() {
         PackageManager pm = getPackageManager();
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         List<ResolveInfo> appsList = pm.queryIntentActivities(intent, 0);
 
         // Collect permission data to pass to Python for clustering
-        List<List<Integer>> appPermissions = new ArrayList<>();
-        for (ResolveInfo info : appsList) {
-            String packageName = info.activityInfo.packageName;
-            List<Integer> permissionList = new ArrayList<>();
-            try {
-                PackageInfo packageInfo = pm.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS);
-                String[] requestedPermissions = packageInfo.requestedPermissions;
-                if (requestedPermissions != null) {
-                    for (String permission : requestedPermissions) {
-                        // Convert to binary form: 1 for granted, 0 for not
-                        permissionList.add(1); // If permission is granted
-                    }
-                }
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-            }
-            appPermissions.add(permissionList);
-        }
-
-        // Convert Java permission list to Python
-        PyObject permissionData = module.callAttr("cluster_apps", appPermissions);
-
-        // Map result to display risk level for each app
-        for (int i = 0; i < appsList.size(); i++) {
-            String packageName = appsList.get(i).activityInfo.packageName;
-            String riskLevel = permissionData.asList().get(i).toString();
-
-            // Display or log risk levels
-            //Log.d("AppRisk", packageName + " is " + riskLevel);
-        }
-        /*
-        // Get PackageManager to retrieve apps
-        PackageManager pm = getPackageManager();
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
-
-        // Query apps with launcher activity
-        List<ResolveInfo> appsList = pm.queryIntentActivities(intent, 0);
-
-        // Collect all unique permissions from apps
         Set<String> permissionSet = new HashSet<>();
         for (ResolveInfo info : appsList) {
             String packageName = info.activityInfo.packageName;
+            //List<Integer> permissionList = new ArrayList<>();
             try {
                 PackageInfo packageInfo = pm.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS);
-                String[] requestedPermissions = packageInfo.requestedPermissions;
-                if (requestedPermissions != null) {
-                    for (String permission : requestedPermissions) {
+                if (packageInfo.requestedPermissions != null) {
+                    for (String permission : packageInfo.requestedPermissions) {
                         permissionSet.add(permission);
                     }
                 }
             } catch (PackageManager.NameNotFoundException e) {
                 e.printStackTrace();
             }
+            exportPermissionsToCSV(permissionSet, appsList, pm);
         }
 
-        // Export app permissions to CSV
-        exportPermissionsToCSV(permissionSet, appsList, pm);
-
-        // Initialize Room database
-        AppDatabase db = Room.databaseBuilder(getApplicationContext(),
-                AppDatabase.class, "permissions.db").allowMainThreadQueries().build();
-        AppDao dao = db.dao();
-
-        // Clear previous data and reset IDs
-        dao.deleteAllPermissions();
-        dao.deleteAllApps();
-        dao.resetIds();
-
-        // Insert app and permission data into Room DB
-        for (ResolveInfo info : appsList) {
-            String packageName = info.activityInfo.packageName;
-            App app = new App(packageName);
-            long appId = dao.insertApp(app);
-
-            try {
-                PackageInfo packageInfo = pm.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS);
-                String[] requestedPermissions = packageInfo.requestedPermissions;
-                if (requestedPermissions != null) {
-                    for (String permissionName : requestedPermissions) {
-                        Permission permission = new Permission(appId, permissionName, true);
-                        dao.insertPermission(permission);
-                    }
-                }
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
-
-        // Close database connection
-        db.close();
     }
-
 
     /**
      * Exports app permissions to a CSV file in internal storage.
@@ -252,7 +177,6 @@ public class MainActivity extends AppCompatActivity {
      * @param appsList      List of apps to retrieve permissions for.
      * @param pm            PackageManager to query app information.
      */
-    /*
     private void exportPermissionsToCSV(Set<String> permissionSet, List<ResolveInfo> appsList, PackageManager pm) {
         String[] permissionsArray = permissionSet.toArray(new String[0]);
         java.util.Arrays.sort(permissionsArray);
@@ -300,4 +224,78 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
+}
+
+
+    /*
+        // Get PackageManager to retrieve apps
+
+        /*
+        // Get PackageManager to retrieve apps
+        PackageManager pm = getPackageManager();
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+
+        // Query apps with launcher activity
+        List<ResolveInfo> appsList = pm.queryIntentActivities(intent, 0);
+
+        // Collect all unique permissions from apps
+        Set<String> permissionSet = new HashSet<>();
+        for (ResolveInfo info : appsList) {
+            String packageName = info.activityInfo.packageName;
+            try {
+                PackageInfo packageInfo = pm.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS);
+                String[] requestedPermissions = packageInfo.requestedPermissions;
+                if (requestedPermissions != null) {
+                    for (String permission : requestedPermissions) {
+                        permissionSet.add(permission);
+                    }
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Export app permissions to CSV
+
+
+        // Initialize Room database
+        AppDatabase db = Room.databaseBuilder(getApplicationContext(),
+                AppDatabase.class, "permissions.db").allowMainThreadQueries().build();
+        AppDao dao = db.dao();
+
+        // Clear previous data and reset IDs
+        dao.deleteAllPermissions();
+        dao.deleteAllApps();
+        dao.resetIds();
+
+        // Insert app and permission data into Room DB
+        for (ResolveInfo info : appsList) {
+            String packageName = info.activityInfo.packageName;
+            App app = new App(packageName);
+            long appId = dao.insertApp(app);
+
+            try {
+                PackageInfo packageInfo = pm.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS);
+                String[] requestedPermissions = packageInfo.requestedPermissions;
+                if (requestedPermissions != null) {
+                    for (String permissionName : requestedPermissions) {
+                        Permission permission = new Permission(appId, permissionName, true);
+                        dao.insertPermission(permission);
+                    }
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Close database connection
+        db.close();
+    }
+
+
+
+    /*
+
     */
