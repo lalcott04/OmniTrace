@@ -42,7 +42,7 @@ public class WarningActivity extends Activity {
 
         //Displays the warnings that appear from the cluster list
         imageList = new ArrayList<>();
-        packageNames.remove(0);
+
         if (clusterLabels != null){
             for (int i = 0; i < clusterLabels.size(); i++){
                 if (clusterLabels.get(i) == 1){

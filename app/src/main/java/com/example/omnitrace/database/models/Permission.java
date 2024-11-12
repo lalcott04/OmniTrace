@@ -24,5 +24,9 @@ public class Permission {
 
     @ColumnInfo(name = "enabled")
     public boolean enabled;
+
+    public String getPermissionName() {
+        return name;
+    }
 }
 

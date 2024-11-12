@@ -1,68 +1,71 @@
 package com.example.omnitrace;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
-import android.os.Bundle;
-
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.TextView;
-import androidx.activity.EdgeToEdge;
-//import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.res.ResourcesCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.room.Room;
-import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.widget.ImageButton;
+import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
 
+import com.chaquo.python.Python;
 import com.chaquo.python.PyObject;
-import com.chaquo.python.android.PyApplication;
-import com.example.omnitrace.database.AppDao;
-import com.example.omnitrace.database.AppDatabase;
-import com.example.omnitrace.database.models.App;
-import com.example.omnitrace.database.models.Permission;
+import com.chaquo.python.android.AndroidPlatform;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.chaquo.python.PyException;
-import com.chaquo.python.Python;
-import com.chaquo.python.android.AndroidPlatform;
-
-import java.util.Objects;
-
 public class MainActivity extends AppCompatActivity {
-
-    ImageButton settingsBtn;
-    ImageButton warningBtn;
-    TextView warningText;
-    Button iconTestBtn;
-    int iconCount = 0;
-
-    private static final String TAG = "CSVReader";
+    private static final String TAG = "MainActivity";
     private Handler handler;
     private Runnable pollingRunnable;
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // Warning button setup
+        ImageButton warningBtn = findViewById(R.id.warningBtn);
+        updateWarningIcon(); // Call this function to set up the warning icon initially
+
+        warningBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, WarningActivity.class);
+            intent.putExtra("PACKAGE_NAMES", (ArrayList<String>) getPackageNamesFromCSV());
+            intent.putExtra("CLUSTER_LABELS", (ArrayList<Integer>) getClusterLabels("/data/data/com.example.omnitrace/files/app_permissions.csv", 2));
+            startActivity(intent);
+        });
+    }
+
+    // Method to update warning icon
+    private void updateWarningIcon() {
+        ImageButton warningBtn = findViewById(R.id.warningBtn);
+        TextView warningText = findViewById(R.id.warningText);
+
+        List<String> maliciousApps = getMaliciousAppsFromCSV();
+        Log.e(TAG, "Malicious apps size: " + maliciousApps.size());
+
+        if (!maliciousApps.isEmpty()) {
+            warningBtn.setImageResource(R.drawable.red_warning_icon);
+            warningText.setText("View Security Warnings");
+        } else {
+            warningBtn.setImageResource(R.drawable.no_warning_icon);
+            warningText.setText("No Security Warnings");
+        }
+    }
 
     public List<Integer> getClusterLabels(String filePath, int numClusters) {
-
-        if (! Python.isStarted()) {
+        if (!Python.isStarted()) {
             Python.start(new AndroidPlatform(this));
         }
 
@@ -81,162 +84,31 @@ public class MainActivity extends AppCompatActivity {
         return labelList;
     }
 
-    private List<String> readCsvAndGetPackageNames() {
-        String filePath = "/data/data/com.example.omnitrace/files/app_permissions.csv";
-        File csvFile = new File(filePath);
-        List<String> packageNames = new ArrayList<>(); // Initialize a list to hold PackageNames
-
-        if (csvFile.exists()) {
-            try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
-                String line;
-                int lineCount = 0;
-
-                while ((line = br.readLine()) != null) {
-                    lineCount++;
-                    // Split the line by commas
-                    String[] columns = line.split(",");
-
-                    // Ensure there is at least one column (PackageName)
-                    if (columns.length > 0) {
-                        String packageName = columns[0];  // Get the first column (PackageName)
-                        packageNames.add(packageName);  // Add the PackageName to the list
-                        Log.d(TAG, "Line " + lineCount + " PackageName: " + packageName); // Optional logging
-                    }
-                }
-            } catch (IOException e) {
-                Log.e(TAG, "Error reading CSV file: " + e.getMessage(), e);
-            }
-        } else {
-            Log.e(TAG, "CSV file does not exist at: " + filePath);
-        }
-
-        return packageNames; // Return the list of PackageNames
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
-
-        //Change to the settings screen when the user clicks the settings button
-        settingsBtn = findViewById(R.id.settingsBtn);
-        settingsBtn.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        //Change to the warnings screen when the user clicks the warning icon
-        warningBtn = findViewById(R.id.warningBtn);
-        warningBtn.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                Intent intent = new Intent(MainActivity.this, WarningActivity.class);
-                List<String> packageNames = readCsvAndGetPackageNames();
-                List<Integer> clusterLabels = getClusterLabels("/data/data/com.example.omnitrace/files/app_permissions.csv", 2);
-                //Sending lists to WarningActivity.java
-                intent.putExtra("PACKAGE_NAMES", (Serializable) packageNames);
-                intent.putExtra("CLUSTER_LABELS", (Serializable) clusterLabels);
-                startActivity(intent);
-            }
-        });
-
-        //Change icon depending if malicious apps are detected
-        warningText = findViewById(R.id.warningText);
-        List<Integer> returned = getClusterLabels("/data/data/com.example.omnitrace/files/app_permissions.csv", 2);
-        if (returned != null) {
-            // TESTING PURPOSES (Changing all items to 0 to test no warning icon functionality)
-            /*for (int i = 0; i < returned.size(); i++) {
-                returned.set(i, 0);
-            }*/
-
-            boolean foundWarning = false;
-            for (int i = 0; i < returned.size(); i++) {
-                if (returned.get(i) == 1) {
-                    warningBtn.setImageResource(R.drawable.red_warning_icon);
-                    warningText.setText("View Security Warnings");
-                    foundWarning = true;
-                }
-            }
-            if (!foundWarning) {
-                warningBtn.setImageResource(R.drawable.no_warning_icon);
-                warningText.setText("No Security Warnings");
-            }
-        } else {
-            warningBtn.setImageResource(R.drawable.error_icon);
-            warningText.setText("Error");
-        }
-
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
-
-        handler = new Handler();
-        pollingRunnable = new Runnable() {
-            @Override
-            public void run() {
-                // Perform the polling operation here
-                getPackages();
-                pollData();
-
-                // Schedule the next execution after 1 minute (60000 milliseconds)
-                handler.postDelayed(this, 15000);
-            }
-        };
-        handler.post(pollingRunnable);
-    }
-
-    private void pollData() {
-
-        // TO DO IN POLLING SETUP:
-
-        // Get applications
-
-        // Write to CSV / Database
-
-        // Model Analysis
-
-        // Label / Package Name Mapping
-
-        // UI Integration
-
-        List<String> packagenames = readCsvAndGetPackageNames();
-
-        List<Integer> returned = getClusterLabels("/data/data/com.example.omnitrace/files/app_permissions.csv", 2);
-        for (Integer label : returned) {
-            Log.d("ClusterLabel", "Label: " + label);
-        }
-    }
-
-    public void getPackages() {
+    private void exportAllAppPermissionsToCSV() {
         PackageManager pm = getPackageManager();
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
+
+        // Query apps with launcher activity
         List<ResolveInfo> appsList = pm.queryIntentActivities(intent, 0);
 
-        // Collect permission data to pass to Python for clustering
+        // Collect all unique permissions from apps
         Set<String> permissionSet = new HashSet<>();
         for (ResolveInfo info : appsList) {
             String packageName = info.activityInfo.packageName;
-            //List<Integer> permissionList = new ArrayList<>();
             try {
                 PackageInfo packageInfo = pm.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS);
-                if (packageInfo.requestedPermissions != null) {
-                    for (String permission : packageInfo.requestedPermissions) {
+                String[] requestedPermissions = packageInfo.requestedPermissions;
+                if (requestedPermissions != null) {
+                    for (String permission : requestedPermissions) {
                         permissionSet.add(permission);
                     }
                 }
             } catch (PackageManager.NameNotFoundException e) {
                 e.printStackTrace();
             }
-            exportPermissionsToCSV(permissionSet, appsList, pm);
         }
-
+        exportPermissionsToCSV(permissionSet, appsList, pm);
     }
 
     /**
@@ -253,17 +125,40 @@ public class MainActivity extends AppCompatActivity {
         // Define the file path for saving CSV
         File csvFile = new File(getFilesDir(), "app_permissions.csv");
 
-        try (FileWriter writer = new FileWriter(csvFile)) {
-            // Write CSV headers
-            writer.append("PackageName");
-            for (String permission : permissionsArray) {
-                writer.append(',').append(permission);
+        try (FileWriter writer = new FileWriter(csvFile, true)) {  // Append mode enabled
+            // First, check if the file already exists and read it to check for existing packages
+            Set<String> existingPackages = new HashSet<>();
+            if (csvFile.exists()) {
+                // Read the existing CSV to get already written package names
+                BufferedReader reader = new BufferedReader(new FileReader(csvFile));
+                String line;
+                reader.readLine();  // Skip the header line
+                while ((line = reader.readLine()) != null) {
+                    String[] data = line.split(",");
+                    existingPackages.add(data[0]);  // Add package name to the set of existing packages
+                }
+                reader.close();
             }
-            writer.append('\n');
 
-            // Write app permissions data
+            // If CSV does not exist or is empty, write the header
+            if (!csvFile.exists() || csvFile.length() == 0) {
+                writer.append("PackageName");
+                for (String permission : permissionsArray) {
+                    writer.append(',').append(permission);
+                }
+                writer.append('\n');
+            }
+
+            // Write app permissions data only for apps that are not already in the CSV
             for (ResolveInfo info : appsList) {
                 String packageName = info.activityInfo.packageName;
+
+                // Skip writing if the package already exists in the CSV file
+                if (existingPackages.contains(packageName)) {
+                    continue;  // Skip this app since it's already in the CSV
+                }
+
+                // If not already in the file, write the app's data
                 writer.append(packageName);
 
                 boolean[] permissionExists = new boolean[permissionsArray.length];
@@ -294,77 +189,87 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-}
+    private List<String> getPackageNamesFromCSV() {
+        List<String> packageNames = new ArrayList<>();
+        File csvFile = new File(getFilesDir(), "app_permissions.csv");
 
+        try (BufferedReader reader = new BufferedReader(new FileReader(csvFile))) {
+            String line;
+            // Skip the header
+            reader.readLine();
 
-    /*
-        // Get PackageManager to retrieve apps
-
-        /*
-        // Get PackageManager to retrieve apps
-        PackageManager pm = getPackageManager();
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
-
-        // Query apps with launcher activity
-        List<ResolveInfo> appsList = pm.queryIntentActivities(intent, 0);
-
-        // Collect all unique permissions from apps
-        Set<String> permissionSet = new HashSet<>();
-        for (ResolveInfo info : appsList) {
-            String packageName = info.activityInfo.packageName;
-            try {
-                PackageInfo packageInfo = pm.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS);
-                String[] requestedPermissions = packageInfo.requestedPermissions;
-                if (requestedPermissions != null) {
-                    for (String permission : requestedPermissions) {
-                        permissionSet.add(permission);
-                    }
-                }
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
+            // Read each line (app) and extract package names
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(",");
+                packageNames.add(data[0]);  // Package name is the first column
             }
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        // Export app permissions to CSV
-
-
-        // Initialize Room database
-        AppDatabase db = Room.databaseBuilder(getApplicationContext(),
-                AppDatabase.class, "permissions.db").allowMainThreadQueries().build();
-        AppDao dao = db.dao();
-
-        // Clear previous data and reset IDs
-        dao.deleteAllPermissions();
-        dao.deleteAllApps();
-        dao.resetIds();
-
-        // Insert app and permission data into Room DB
-        for (ResolveInfo info : appsList) {
-            String packageName = info.activityInfo.packageName;
-            App app = new App(packageName);
-            long appId = dao.insertApp(app);
-
-            try {
-                PackageInfo packageInfo = pm.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS);
-                String[] requestedPermissions = packageInfo.requestedPermissions;
-                if (requestedPermissions != null) {
-                    for (String permissionName : requestedPermissions) {
-                        Permission permission = new Permission(appId, permissionName, true);
-                        dao.insertPermission(permission);
-                    }
-                }
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
-
-        // Close database connection
-        db.close();
+        return packageNames;
     }
 
+    private void updateAppMaliciousStatusInCSV(String packageName, boolean isMalicious) {
+        File csvFile = new File(getFilesDir(), "app_permissions.csv");
 
+        try {
+            // Read all lines from the CSV file
+            BufferedReader reader = new BufferedReader(new FileReader(csvFile));
+            StringBuilder fileContent = new StringBuilder();
+            String line;
+            boolean appUpdated = false;
 
-    /*
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(",");
+                if (data[0].equals(packageName)) {
+                    // Update the malicious status (assuming the malicious status is the last column)
+                    data[data.length - 1] = isMalicious ? "1" : "0";
+                    line = String.join(",", data);
+                    appUpdated = true;
+                }
+                fileContent.append(line).append("\n");
+            }
+            reader.close();
 
-    */
+            // If the app was updated, rewrite the CSV file
+            if (appUpdated) {
+                FileWriter writer = new FileWriter(csvFile);
+                writer.write(fileContent.toString());
+                writer.close();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private List<String> getMaliciousAppsFromCSV() {
+        List<String> maliciousApps = new ArrayList<>();
+        File csvFile = new File(getFilesDir(), "app_permissions.csv");
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(csvFile))) {
+            String line;
+            // Skip the header
+            reader.readLine();
+
+            // Read each line (app) and check if it is malicious
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(",");
+                String packageName = data[0];  // Package name is the first column
+                String isMalicious = data[data.length - 1];  // Malicious status is the last column
+
+                // If the last column is '1', the app is considered malicious
+                if ("1".equals(isMalicious)) {
+                    maliciousApps.add(packageName);
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return maliciousApps;
+    }
+}
